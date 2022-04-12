@@ -1,5 +1,5 @@
 (* Large prime numbers generation *)
-(*#require "zarith"*)
+#require "zarith"
 
 let show n = Z.print n; print_newline() (* for debugging purpose *)
 
@@ -34,3 +34,35 @@ let rec maybe_prime n l = (* n: Z.t, l: Z.t list, a list of prime numbers *)
   match l with
   | [] -> true
   | p::t -> (zmod n p <> Z.zero || n = p) && maybe_prime n t
+
+let rec decompose2 n = (* n: Z.t, find s: Z.t and d: Z.t such that n=2^s*d with d and odd number *)
+    let two = Z.(succ one) in
+    match n with
+    | _ when zmod n two <> Z.zero -> Z.zero,n
+    | _ -> let s,d = decompose2 (Z.div n two) in Z.succ s,d
+
+let rec fast_pow n p = 
+    let two = Z.(succ one) in
+    match p with
+    | _ when p = Z.zero -> Z.one
+    | _ when zmod p two = Z.zero -> fast_pow Z.(n*n) Z.(p/two)
+    | _ -> Z.(n * (fast_pow Z.(n*n) Z.(p/two)))
+
+
+let millerWitness n s d a = (* find if a is Miller witness of n not being prime, with s,d such that n-1 = 2^s*d, d odd *)
+    let i = ref Z.one in
+    let m = ref (zmod a n) in
+    while !m <> Z.one && Z.(!i<=d) do
+        m := Z.(zmod (a * !m) n);
+        i := Z.succ !i
+    done;
+    if !m = Z.one then false
+    else begin
+        let r = ref Z.zero in
+        while !m <> Z.(n-one) && Z.(!r < s) do
+            r:=Z.succ !r;
+            m:= zmod Z.(!m * !m) n
+        done;
+        !m <> Z.(n-one)
+    end
+
