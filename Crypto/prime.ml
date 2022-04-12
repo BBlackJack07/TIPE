@@ -52,7 +52,7 @@ let rec fast_pow n p =
 let millerWitness n s d a = (* find if a is Miller witness of n not being prime, with s,d such that n-1 = 2^s*d, d odd *)
     let i = ref Z.one in
     let m = ref (zmod a n) in
-    while !m <> Z.one && Z.(!i<=d) do
+    while Z.(!i<=d) do
         m := Z.(zmod (a * !m) n);
         i := Z.succ !i
     done;
