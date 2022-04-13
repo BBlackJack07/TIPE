@@ -4,8 +4,6 @@
 
 let show n = Z.print n; print_newline() (* for debugging purpose *)
 
-let zmod a b = let _,r = Z.div_rem a b in r
-
 let sieve n = (* Generating prime numbers lower than int n using sieve of Eratosthenes *)
   let tab = Array.make (n-1) true in (* array representing numbers from 2 to n *)
   for i = 0 to n-2 do
@@ -31,18 +29,18 @@ let max_bit n =
     !m
 
 let random_number n = (* random number below n *)
-    let m = max_bit n in
-    let x = ref Z.one in
-    while Z.(!x >= n) || !x=Z.one do
-        let pow2 = ref Z.one in
-        x := Z.zero;
-        for i = 0 to m-1 do
-            if Random.bool () then
-                x := Z.add !x !pow2;
-            pow2 := Z.(!pow2 * of_int 2)
-        done
-    done;
-    !x
+  let m = max_bit n in
+  let x = ref Z.one in
+  while Z.(!x >= n) || !x=Z.one do
+    let pow2 = ref Z.one in
+    x := Z.zero;
+      for i = 0 to m-1 do
+        if Random.bool () then
+            x := Z.add !x !pow2;
+        pow2 := Z.(!pow2 * of_int 2)
+      done
+  done;
+  !x
 
 let rd_potential_prime n = (* random number generation, integer n is the number of bits *)
   let two = Z.succ Z.one in
@@ -57,12 +55,12 @@ let rd_potential_prime n = (* random number generation, integer n is the number 
 let rec maybe_prime n l = (* n: Z.t, l: Z.t list, a list of prime numbers *)
   match l with
   | [] -> true
-  | p::t -> (zmod n p <> Z.zero || n = p) && maybe_prime n t
+  | p::t -> (Z.(n mod p <> zero) || n = p) && maybe_prime n t
 
 let rec decompose2 n = (* n: Z.t, find s: Z.t and d: Z.t such that n=2^s*d with d and odd number *)
     let two = Z.(succ one) in
     match n with
-    | _ when zmod n two <> Z.zero -> Z.zero,n
+    | _ when Z.(n mod two) <> Z.zero -> Z.zero,n
     | _ -> let s,d = decompose2 (Z.div n two) in Z.succ s,d
 
 
@@ -70,8 +68,8 @@ let rec modpow n e m = (* use fast exponentiation to compute n^(e) mod m*)
   let two = Z.(succ one) in
   match e with
   | _ when e = Z.zero -> Z.one
-  | _ when Z.rem e two = Z.zero -> modpow Z.(rem (n*n) m) Z.(e/two) m
-  | _ -> Z.(rem (n * (modpow Z.(rem (n*n) m) Z.(e/two) m)) m)
+  | _ when Z.(e mod two) = Z.zero -> modpow Z.(n*n mod m) Z.(e/two) m
+  | _ -> Z.((n * (modpow (n*n mod m) (e/two) m)) mod m)
 
 
 let miller_witness n s d a = (* find if a is Miller witness of n not being prime, with s,d such that n-1 = 2^s*d, d odd *)
@@ -81,7 +79,7 @@ let miller_witness n s d a = (* find if a is Miller witness of n not being prime
     let r = ref Z.one in
     while !m <> Z.(n-one) && Z.(!r < s) do
       r:=Z.succ !r;
-      m:= zmod Z.(!m * !m) n
+      m:= Z.((!m * !m) mod n)
     done;
     !m <> Z.(n-one)
   end
