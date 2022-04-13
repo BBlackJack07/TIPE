@@ -1,5 +1,6 @@
 (* Large prime numbers generation *)
-#require "zarith"
+(* #require "zarith" *) (*when using in toplevel*)
+(* compile using 'ocamlfind ocamlc prime.ml -package zarith -linkpkg' *)
 
 let show n = Z.print n; print_newline() (* for debugging purpose *)
 
@@ -20,7 +21,30 @@ let sieve n = (* Generating prime numbers lower than int n using sieve of Eratos
   done;
   !l
 
-let random_number n = (* random number generation, integer n is the number of bits *)
+let max_bit n =
+    let p = ref Z.one in
+    let m = ref 0 in
+    while Z.(!p<n) do
+        p := Z.(!p * of_int 2);
+        incr m
+    done;
+    !m
+
+let random_number n = (* random number below n *)
+    let m = max_bit n in
+    let x = ref Z.one in
+    while Z.(!x >= n) || !x=Z.one do
+        let pow2 = ref Z.one in
+        x := Z.zero;
+        for i = 0 to m-1 do
+            if Random.bool () then
+                x := Z.add !x !pow2;
+            pow2 := Z.(!pow2 * of_int 2)
+        done
+    done;
+    !x
+
+let rd_potential_prime n = (* random number generation, integer n is the number of bits *)
   let two = Z.succ Z.one in
   let pow2 = Z.pow two in
   let x = ref (Z.add (pow2 (n-1)) Z.one) in (* The number is at least 2^(n-1)+1, in order to be large enough and odd *)
@@ -41,28 +65,44 @@ let rec decompose2 n = (* n: Z.t, find s: Z.t and d: Z.t such that n=2^s*d with 
     | _ when zmod n two <> Z.zero -> Z.zero,n
     | _ -> let s,d = decompose2 (Z.div n two) in Z.succ s,d
 
-let rec fast_pow n p = 
-    let two = Z.(succ one) in
-    match p with
-    | _ when p = Z.zero -> Z.one
-    | _ when zmod p two = Z.zero -> fast_pow Z.(n*n) Z.(p/two)
-    | _ -> Z.(n * (fast_pow Z.(n*n) Z.(p/two)))
+
+let rec modpow n e m = (* use fast exponentiation to compute n^(e) mod m*)
+  let two = Z.(succ one) in
+  match e with
+  | _ when e = Z.zero -> Z.one
+  | _ when Z.rem e two = Z.zero -> modpow Z.(rem (n*n) m) Z.(e/two) m
+  | _ -> Z.(rem (n * (modpow Z.(rem (n*n) m) Z.(e/two) m)) m)
 
 
-let millerWitness n s d a = (* find if a is Miller witness of n not being prime, with s,d such that n-1 = 2^s*d, d odd *)
-    let i = ref Z.zero in
-    let m = ref Z.one in
-    while Z.(!i<=d) do
-        m := Z.(zmod (a * !m) n);
-        i := Z.succ !i
+let miller_witness n s d a = (* find if a is Miller witness of n not being prime, with s,d such that n-1 = 2^s*d, d odd *)
+  let m = ref (modpow a d n) in
+  if !m = Z.one || !m = Z.(n-one) then false
+  else begin
+    let r = ref Z.one in
+    while !m <> Z.(n-one) && Z.(!r < s) do
+      r:=Z.succ !r;
+      m:= zmod Z.(!m * !m) n
     done;
-    if !m = Z.one then false
-    else begin
-        let r = ref Z.zero in
-        while !m <> Z.(n-one) && Z.(!r < s) do
-            r:=Z.succ !r;
-            m:= zmod Z.(!m * !m) n
-        done;
-        !m <> Z.(n-one)
-    end
+    !m <> Z.(n-one)
+  end
+
+let rabin_miller n k = (* perform Rabin Miller test of integer n: Z.t with k: int iterations *)
+  let s,d = decompose2 Z.(n-one) in
+  let i = ref 0 in
+  let not_prime = ref false in
+  while (not !not_prime) && !i<k do
+    let a = ref (random_number Z.(n-one)) in
+    not_prime := miller_witness n s d !a;
+    incr i
+  done;
+  !not_prime
+
+let generate_prime nb_bits = (* Compute a random number of nb_bits bits which is almost certainly prime *)
+  Random.self_init ();
+  let l = sieve 10000 in
+  let p = ref (rd_potential_prime nb_bits) in
+  while (not (maybe_prime !p l)) || (rabin_miller !p 25) do
+    p := rd_potential_prime nb_bits
+  done;
+  !p
 
