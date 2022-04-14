@@ -9,14 +9,10 @@ let euclide a b = (* Algorithme d'Euclide étendu, pour calculer les coefficient
   let u0,u1,v0,v1 = Z.(ref one, ref zero, ref zero, ref one) in
   let r0 = ref a and r1 = ref b in
   while !r1 <> Z.zero do
-    let t1,t2,t3 = !u1,!v1,!r1 in
     let q = Z.(!r0 / !r1) in
-    u1 := Z.(!u0 - q * !u1);
-    v1 := Z.(!v0 - q * !v1);
-    r1 := Z.(!r0 - q * !r1);
-    u0 := t1;
-    v0 := t2;
-    r0 := t3
+    let t = !u1 in u1 := Z.(!u0 - q * !u1); u0 := t;
+    let t = !v1 in v1 := Z.(!v0 - q * !v1); v0 := t;
+    let t = !r1 in r1 := Z.(!r0 - q * !r1); r0 := t
   done;
   (!u0,!v0)
 
