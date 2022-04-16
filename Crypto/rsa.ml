@@ -23,22 +23,19 @@ let rec modpow n e m = (* use fast exponentiation to compute n^(e) mod m*)
   | _ when Z.rem e two = Z.zero -> modpow Z.(rem (n*n) m) Z.(e/two) m
   | _ -> Z.(rem (n * (modpow Z.(rem (n*n) m) Z.(e/two) m)) m)
 
-let build_keys p q = (* p : Z.t, q : Z.t, p and q are supposed to be prime integers *)
+let build_keys p q = (* p : Z.t, q : Z.t, p and q are supposed to be prime integers and p mod e <> 1 (same for q)*)
 (* returned values are public and private rsa keys associated to p and q *)
   let phi = Z.((p-one)*(q-one)) in
   let n = Z.(p*q) in
-  let e = ref Z.(phi-one) in
-  while pgcd phi !e <> Z.one do
-    e := Z.(!e-one)
-  done;
-  let d = ref (fst (euclide !e phi)) in
+  let e = Z.of_int 65537 in
+  let d = ref (fst (euclide e phi)) in
   while !d<Z.zero do
     d:= Z.(!d + phi)
   done;
   while !d>phi do
     d:= Z.(!d - phi)
   done;
-  ({e= !e; n=n},{d= !d; n=n})
+  ({e= e; n=n},{d= !d; n=n})
 
 let encrypt m pubkey = (* encrypt Z.t int m using public key 'pubkey' *)
   modpow m pubkey.e pubkey.n
