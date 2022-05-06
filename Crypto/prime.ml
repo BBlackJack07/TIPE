@@ -27,13 +27,13 @@ let sieve n = (* Generating prime numbers lower than int n using sieve of Eratos
   !l
 
 let max_bit n =
-    let p = ref Z.one in
-    let m = ref 0 in
-    while Z.(!p<n) do
-        p := Z.(!p * of_int 2);
-        incr m
-    done;
-    !m
+  let p = ref Z.one in
+  let m = ref 0 in
+  while Z.(!p<n) do
+    p := Z.(!p * of_int 2);
+    incr m
+  done;
+  !m
 
 let random_number n = (* random number below n *)
   let m = max_bit n in
@@ -43,7 +43,7 @@ let random_number n = (* random number below n *)
     x := Z.zero;
       for i = 0 to m-1 do
         if Random.bool () then
-            x := Z.add !x !pow2;
+          x := Z.add !x !pow2;
         pow2 := Z.(!pow2 * of_int 2)
       done
   done;
