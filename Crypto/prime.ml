@@ -102,14 +102,21 @@ let rabin_miller n k = (* perform Rabin Miller test of integer n: Z.t with k: in
   done;
   !not_prime
 
-let generate_prime nb_bits e = (* Compute a random number of nb_bits bits which is almost certainly prime *)
+let generate_prime_rsa nb_bits e = (* Compute a random number of nb_bits bits which is almost certainly prime *)
 (* and e ^ (p-1) = 1, int e is supposed to be prime *)
   Random.self_init ();
   let l = sieve 10000 in
   let p = ref (rd_potential_prime nb_bits) in
-  while (not (maybe_prime !p l)) || (rabin_miller !p 25) || pgcd (Z.pred !p) e <> Z.one do
+  while (not (maybe_prime !p l)) || (rabin_miller !p 25) || pgcd Z.(!p - one) e <> Z.one do
     p := rd_potential_prime nb_bits
   done;
   !p
 
- 
+let generate_prime nb_bits =
+  Random.self_init ();
+  let l = sieve 10000 in
+  let p = ref (rd_potential_prime nb_bits) in
+  while (not (maybe_prime !p l)) || (rabin_miller !p 25) do
+    p := rd_potential_prime nb_bits
+  done;
+  !p
