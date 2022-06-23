@@ -12,13 +12,22 @@ def readfile(path):
     return np.array(X),np.array(Y)
 
 naif = "naif.csv"
-miller = "miller.csv"
-size,t1 = readfile(naif)
-_,t2 = readfile(miller)
+miller = "miller_alone.csv"
+s1,t1 = readfile(naif)
+s2,t2 = readfile(miller)
 
 plt.close()
 
-plt.plot(size[:-3],np.log(t1[:-3]/t1[0]),"g+")
+#plt.plot(s1[1:],t1[1:],"g+")
 
-#plt.plot(size,t2)
+#a,b = np.polyfit(s1[1:],np.log(t1[1:]),1)
 
+#plt.plot(s1,np.exp(a*s1+b))
+
+plt.plot(s2,t2,"r+")
+c,d = np.polyfit(s2,t2,1)
+
+plt.plot(s2,c*s2+d)
+plt.title("Temps de génération d'un nombre pseudo-premier en fonction de sa taille (en bits)")
+plt.xlabel("Nombre de bits")
+plt.ylabel("Temps (en secondes)")

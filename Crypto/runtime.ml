@@ -30,5 +30,19 @@ let run_test a b =
   write_csv t_naif "./naif.csv";
   write_csv t_miller "./miller.csv"
 
+let run_test_miller a b =
+  let n = b - a and k = 5 in
+  let step = 4 in
+  let t_miller = Array.make ((n/step)+1) (0,0.) in
+  let i = ref a in
+  while !i <= b do
+    let t1 = mean_time (fun () -> Prime.generate_prime !i) k in
+    t_miller.((!i-a)/step) <- (!i,t1);
+    i := !i + step
+  done;
+  write_csv t_miller "./miller_alone.csv"
+
+
+
 let _ =
-  run_test 32 58
+  run_test_miller 1024 2048
