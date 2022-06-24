@@ -11,8 +11,8 @@ def readfile(path):
             Y.append(float(line[1]))
     return X,Y
 
-naif = "naif.csv"
-miller = "miller_alone.csv"
+naif = "Test_results/naif.csv"
+miller = "Test_results/miller_alone.csv"
 s1,t1 = readfile(naif)
 s1,t1=np.array(s1),np.array(t1)
 s2,t2 = readfile(miller)
