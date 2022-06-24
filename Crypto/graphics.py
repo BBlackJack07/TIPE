@@ -21,9 +21,8 @@ s2,t2 = readfile(miller)
 #%% Naif
 plt.close()
 
-
 plt.plot(s1[1:],t1[1:],"g+")
-
+plt.yscale("log")
 a,b = np.polyfit(s1[1:],np.log(t1[1:]),1)
 l="t = {}*exp({} * nb_bits)".format(np.round(np.exp(b),11),np.round(a,4))
 
