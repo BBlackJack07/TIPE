@@ -12,7 +12,7 @@ def readfile(path):
     return X,Y
 
 naif = "Test_results/naif.csv"
-miller = "miller_alone.csv"
+miller = "Test_results/miller_alone2.csv"
 s1,t1 = readfile(naif)
 s1,t1=np.array(s1),np.array(t1)
 s2,t2 = readfile(miller)
