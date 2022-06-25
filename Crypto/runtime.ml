@@ -18,7 +18,7 @@ let write_csv t path =
   Out_channel.close f
 
 let run_test a b = 
-  let n = b - a + 1 and k = 20 in
+  let n = b - a + 1 and k = 50 in
   let t_naif = Array.make n (0,0.) in
   let t_miller = Array.make n (0,0.) in
   for i = a to b do
@@ -45,4 +45,4 @@ let run_test_miller a b =
 
 
 let _ =
-  run_test_miller 1024 2048
+  run_test 32 64
