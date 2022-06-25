@@ -12,7 +12,7 @@ def readfile(path):
     return X,Y
 
 naif = "Test_results/naif.csv"
-miller = "Test_results/miller_alone.csv"
+miller = "miller_alone.csv"
 s1,t1 = readfile(naif)
 s1,t1=np.array(s1),np.array(t1)
 s2,t2 = readfile(miller)
@@ -36,14 +36,14 @@ plt.legend()
 #%% Miller
 plt.close()
 
-s2 = np.array(s2[:212] + s2[213:232] + s2[233:])
-t2 = np.array(t2[:212] + t2[213:232] + t2[233:])
+s2 = np.array(s2)
+t2 = np.array(t2)
 
 
 plt.plot(s2,t2,"r+")
-c,d = np.polyfit(s2,t2,1)
+c,d,e = np.polyfit(s2,t2,2)
 
-plt.plot(s2,c*s2+d)
+plt.plot(s2,c*s2**2+d*s2+e)
 plt.title("Temps de génération d'un nombre pseudo-premier en fonction de sa taille (en bits)")
 plt.xlabel("Nombre de bits")
 plt.ylabel("Temps (en secondes)")

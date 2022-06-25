@@ -31,7 +31,7 @@ let run_test a b =
   write_csv t_miller "./miller.csv"
 
 let run_test_miller a b =
-  let n = b - a and k = 5 in
+  let n = b - a and k = 100 in
   let step = 4 in
   let t_miller = Array.make ((n/step)+1) (0,0.) in
   let i = ref a in
@@ -45,4 +45,4 @@ let run_test_miller a b =
 
 
 let _ =
-  run_test 32 58
+  run_test_miller 1024 2048
