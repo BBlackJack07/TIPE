@@ -27,8 +27,8 @@ let run_test a b =
     t_miller.(i-a) <- (i,t1);
     t_naif.(i-a) <- (i, t2)
   done;
-  write_csv t_naif "./naif.csv";
-  write_csv t_miller "./miller.csv"
+  write_csv t_naif "./Test_results/naif.csv";
+  write_csv t_miller "./Test_results/miller.csv"
 
 let run_test_miller a b =
   let n = b - a and k = 100 in
@@ -40,7 +40,7 @@ let run_test_miller a b =
     t_miller.((!i-a)/step) <- (!i,t1);
     i := !i + step
   done;
-  write_csv t_miller "./miller_alone.csv"
+  write_csv t_miller "./Test_results/miller_alone.csv"
 
 
 
