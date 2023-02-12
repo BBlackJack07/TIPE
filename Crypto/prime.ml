@@ -4,6 +4,13 @@
 
 let show n = Z.print n; print_newline() (* for debugging purpose *)
 
+let rec pgcd a b =
+  if Z.(a = zero) then b else
+  if Z.(b = zero) then a else begin
+    let r = Z.(a mod b) in
+    pgcd b r
+  end
+
 let sieve n = (* Generating prime numbers lower than int n using sieve of Eratosthenes *)
   let tab = Array.make (n-1) true in (* array representing numbers from 2 to n *)
   for i = 0 to n-2 do
@@ -20,13 +27,13 @@ let sieve n = (* Generating prime numbers lower than int n using sieve of Eratos
   !l
 
 let max_bit n =
-    let p = ref Z.one in
-    let m = ref 0 in
-    while Z.(!p<n) do
-        p := Z.(!p * of_int 2);
-        incr m
-    done;
-    !m
+  let p = ref Z.one in
+  let m = ref 0 in
+  while Z.(!p<n) do
+    p := Z.(!p * of_int 2);
+    incr m
+  done;
+  !m
 
 let random_number n = (* random number below n *)
   let m = max_bit n in
@@ -36,7 +43,7 @@ let random_number n = (* random number below n *)
     x := Z.zero;
       for i = 0 to m-1 do
         if Random.bool () then
-            x := Z.add !x !pow2;
+          x := Z.add !x !pow2;
         pow2 := Z.(!pow2 * of_int 2)
       done
   done;
@@ -95,7 +102,17 @@ let rabin_miller n k = (* perform Rabin Miller test of integer n: Z.t with k: in
   done;
   !not_prime
 
-let generate_prime nb_bits = (* Compute a random number of nb_bits bits which is almost certainly prime *)
+let generate_prime_rsa nb_bits e = (* Compute a random number of nb_bits bits which is almost certainly prime *)
+(* and e ^ (p-1) = 1, int e is supposed to be prime *)
+  Random.self_init ();
+  let l = sieve 10000 in
+  let p = ref (rd_potential_prime nb_bits) in
+  while (not (maybe_prime !p l)) || (rabin_miller !p 25) || pgcd Z.(!p - one) e <> Z.one do
+    p := rd_potential_prime nb_bits
+  done;
+  !p
+
+let generate_prime nb_bits =
   Random.self_init ();
   let l = sieve 10000 in
   let p = ref (rd_potential_prime nb_bits) in
@@ -103,4 +120,3 @@ let generate_prime nb_bits = (* Compute a random number of nb_bits bits which is
     p := rd_potential_prime nb_bits
   done;
   !p
-
